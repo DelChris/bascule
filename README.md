@@ -7,6 +7,21 @@ POC : **HEIC / HEIF → PNG ou JPG**.
 
 ## Installation
 
+### Depuis une release
+
+1. Installer depuis le Microsoft Store **« Extensions d'images HEIF »** (gratuit) et
+   **« Extensions vidéo HEVC »** (0,99 €, souvent déjà présente sur les PC récents).
+2. Télécharger `Bascule-x.y.z-x64.zip` dans les
+   [releases](https://github.com/DelChris/bascule/releases), puis l'extraire.
+3. Double-cliquer sur `bascule.exe`. SmartScreen avertit que l'exe n'est pas signé :
+   « Informations complémentaires » → « Exécuter quand même ».
+4. Accepter la demande administrateur, qui sert à faire confiance au certificat du package.
+
+Le dossier extrait peut ensuite être supprimé : Bascule s'est copié dans
+`%LOCALAPPDATA%\Programs\Bascule`.
+
+### Depuis les sources
+
 ```bash
 powershell -ExecutionPolicy Bypass -File packaging\build.ps1
 target\release\bascule.exe --install

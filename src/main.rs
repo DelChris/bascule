@@ -37,6 +37,8 @@ use formats::{Format, SOURCES};
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     match args.first().map(String::as_str) {
+        // Double-clic sur l'exe téléchargé (hors du dossier d'installation) : on installe.
+        None if !running_from_install_dir() => install(),
         None | Some("--tray") => {
             unsafe {
                 let _ = SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
@@ -65,6 +67,12 @@ fn main() {
             false,
         ),
     }
+}
+
+fn running_from_install_dir() -> bool {
+    let norm = |p: PathBuf| p.canonicalize().unwrap_or(p);
+    let exe_dir = std::env::current_exe().ok().and_then(|p| p.parent().map(Path::to_path_buf));
+    exe_dir.is_some_and(|d| norm(d) == norm(util::install_dir()))
 }
 
 fn message_box(text: &str, warn: bool) {
