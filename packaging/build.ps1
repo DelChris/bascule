@@ -1,6 +1,6 @@
 # Compile l'exe + la DLL, construit le package MSIX sparse et le signe.
-# Produit dans target\release : convertisseur.exe, convertisseur_shell.dll,
-# Convertisseur.msix, convertisseur.cer
+# Produit dans target\release : bascule.exe, bascule_shell.dll,
+# Bascule.msix, bascule.cer
 #
 #   powershell -ExecutionPolicy Bypass -File packaging\build.ps1
 #
@@ -10,7 +10,7 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $out = Join-Path $root 'target\release'
-$subject = 'CN=Convertisseur'   # doit correspondre à Publisher dans AppxManifest.xml
+$subject = 'CN=Bascule'   # doit correspondre à Publisher dans AppxManifest.xml
 
 function Find-Tool($name) {
     $dirs = @("${env:ProgramFiles(x86)}\Windows Kits\10\bin", "$env:LOCALAPPDATA\SdkBuildTools")
@@ -39,13 +39,13 @@ try {
     Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
     New-Item -ItemType Directory -Force "$stage\Assets" | Out-Null
     Copy-Item "$PSScriptRoot\AppxManifest.xml" $stage
-    & "$out\convertisseur.exe" --export-assets "$stage\Assets" | Out-Null
+    & "$out\bascule.exe" --export-assets "$stage\Assets" | Out-Null
     Start-Sleep -Milliseconds 300   # exe GUI : rend la main avant d'avoir fini d'écrire
-    Copy-Item "$stage\Assets\convertisseur.ico" $out
+    Copy-Item "$stage\Assets\bascule.ico" $out
 
     # Empaquetage via l'API Windows (examples/pack_msix.rs) : pas besoin de makeappx.
-    Remove-Item "$stage\Assets\convertisseur.ico"
-    $msix = Join-Path $out 'Convertisseur.msix'
+    Remove-Item "$stage\Assets\bascule.ico"
+    $msix = Join-Path $out 'Bascule.msix'
     cargo run --release --quiet --example pack_msix -- $stage $msix
     if ($LASTEXITCODE) { throw "l'empaquetage MSIX a échoué" }
 
@@ -54,11 +54,11 @@ try {
         Sort-Object NotAfter | Select-Object -Last 1
     if (-not $cert) {
         $cert = New-SelfSignedCertificate -Type Custom -Subject $subject -KeyUsage DigitalSignature `
-            -FriendlyName 'Convertisseur (signature locale)' -CertStoreLocation Cert:\CurrentUser\My `
+            -FriendlyName 'Bascule (signature locale)' -CertStoreLocation Cert:\CurrentUser\My `
             -NotAfter (Get-Date).AddYears(10) `
             -TextExtension @('2.5.29.37={text}1.3.6.1.5.5.7.3.3', '2.5.29.19={text}')
     }
-    Export-Certificate -Cert $cert -FilePath (Join-Path $out 'convertisseur.cer') | Out-Null
+    Export-Certificate -Cert $cert -FilePath (Join-Path $out 'bascule.cer') | Out-Null
 
     & (Find-Tool 'signtool.exe') sign /q /fd SHA256 /sha1 $cert.Thumbprint /s My $msix
     if ($LASTEXITCODE) { throw 'signtool a échoué' }

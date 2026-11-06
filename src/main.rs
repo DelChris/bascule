@@ -1,10 +1,10 @@
 #![windows_subsystem = "windows"]
 
-//! Convertisseur — un seul exécutable :
-//!   convertisseur.exe                      tray (serveur résident)
-//!   convertisseur.exe --to png a.heic ...  envoie au tray (appelé par le menu contextuel)
-//!   convertisseur.exe --cli png a.heic|dossier ...   conversion directe en console (tests, scripts)
-//!   convertisseur.exe --install | --uninstall | --quit
+//! Bascule — un seul exécutable :
+//!   bascule.exe                      tray (serveur résident)
+//!   bascule.exe --to png a.heic ...  envoie au tray (appelé par le menu contextuel)
+//!   bascule.exe --cli png a.heic|dossier ...   conversion directe en console (tests, scripts)
+//!   bascule.exe --install | --uninstall | --quit
 
 mod convert;
 mod formats;
@@ -54,14 +54,14 @@ fn main() {
             // Utilisé par packaging/build.ps1
             let dir = PathBuf::from(args.get(1).map_or(".", String::as_str));
             let _ = std::fs::create_dir_all(&dir);
-            let _ = std::fs::write(dir.join("convertisseur.ico"), icon::ico_file());
+            let _ = std::fs::write(dir.join("bascule.ico"), icon::ico_file());
             for s in [44, 50, 150] {
                 let _ = icon::write_png(&dir.join(format!("logo{s}.png")), s);
             }
         }
         _ => message_box(
-            "Usage :\n  convertisseur.exe --install\n  convertisseur.exe --uninstall\n  \
-             convertisseur.exe --cli png|jpg <fichiers ou dossiers>",
+            "Usage :\n  bascule.exe --install\n  bascule.exe --uninstall\n  \
+             bascule.exe --cli png|jpg <fichiers ou dossiers>",
             false,
         ),
     }
@@ -70,7 +70,7 @@ fn main() {
 fn message_box(text: &str, warn: bool) {
     let icon = if warn { MB_ICONWARNING } else { MB_ICONINFORMATION };
     unsafe {
-        MessageBoxW(None, &HSTRING::from(text), w!("Convertisseur"), MB_OK | icon);
+        MessageBoxW(None, &HSTRING::from(text), w!("Bascule"), MB_OK | icon);
     }
 }
 
@@ -129,7 +129,7 @@ fn send_or_start(msg: &str) -> bool {
 fn take_spawn_lock() -> bool {
     unsafe {
         // Le handle est volontairement gardé jusqu'à la fin du process.
-        let h = CreateMutexW(None, false, w!("Local\\Convertisseur-spawn"));
+        let h = CreateMutexW(None, false, w!("Local\\Bascule-spawn"));
         h.is_ok() && GetLastError() != ERROR_ALREADY_EXISTS
     }
 }
@@ -149,7 +149,7 @@ fn cli(args: &[String]) {
     }
     let mut out = std::io::stdout();
     let Some(fmt) = args.first().and_then(|s| Format::parse(s)) else {
-        let _ = writeln!(out, "usage : convertisseur --cli png|jpg <fichiers ou dossiers>");
+        let _ = writeln!(out, "usage : bascule --cli png|jpg <fichiers ou dossiers>");
         return;
     };
     let mut files = Vec::new();
@@ -177,7 +177,7 @@ fn cli(args: &[String]) {
         for _ in 0..threads {
             s.spawn(|| {
                 let conv = Converter::new();
-                if std::env::var_os("CONVERTISSEUR_WARMUP").is_some() {
+                if std::env::var_os("BASCULE_WARMUP").is_some() {
                     if let Ok(c) = &conv {
                         let t = Instant::now();
                         c.warm_up();
@@ -236,14 +236,14 @@ fn stop_tray() {
 }
 
 /// Fichiers du menu Windows 11, produits par packaging/build.ps1 à côté de l'exe.
-const SHELL_DLL: &str = "convertisseur_shell.dll";
-const SHELL_MSIX: &str = "Convertisseur.msix";
-const SHELL_CER: &str = "convertisseur.cer";
+const SHELL_DLL: &str = "bascule_shell.dll";
+const SHELL_MSIX: &str = "Bascule.msix";
+const SHELL_CER: &str = "bascule.cer";
 static REGISTER_PS1: &str = include_str!("../packaging/register.ps1");
 
 /// Lance packaging/register.ps1 (embarqué). Retourne le message d'erreur éventuel.
 fn run_register(action: &str, dir: &Path) -> Result<(), String> {
-    let script = std::env::temp_dir().join(format!("convertisseur-register-{}.ps1", std::process::id()));
+    let script = std::env::temp_dir().join(format!("bascule-register-{}.ps1", std::process::id()));
     // BOM UTF-8 : Windows PowerShell 5.1 lirait sinon le script en ANSI.
     std::fs::write(&script, format!("\u{FEFF}{REGISTER_PS1}")).map_err(|e| e.to_string())?;
     let out = Command::new("powershell.exe")
@@ -277,7 +277,7 @@ fn copy_with_retry(from: &Path, to: &Path) -> std::io::Result<()> {
 
 fn install() {
     let dir = util::install_dir();
-    let dest = dir.join("convertisseur.exe");
+    let dest = dir.join("bascule.exe");
     let me = std::env::current_exe().unwrap_or_default();
     let src_dir = me.parent().map(Path::to_path_buf).unwrap_or_default();
     let win11 = registry::is_windows_11();
@@ -331,7 +331,7 @@ fn install() {
     spawn_tray(&dest);
 
     let mut text = String::from(
-        "Convertisseur est installé et tourne dans la zone de notification.\n\n\
+        "Bascule est installé et tourne dans la zone de notification.\n\n\
          Clic droit sur une ou plusieurs images HEIC → « Convertir... » → PNG ou JPG.",
     );
     if let Some(reason) = fallback_reason {
@@ -362,5 +362,5 @@ fn uninstall() {
     } else {
         let _ = std::fs::remove_dir_all(&dir);
     }
-    message_box("Convertisseur a été désinstallé.", false);
+    message_box("Bascule a été désinstallé.", false);
 }

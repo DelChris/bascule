@@ -1,8 +1,8 @@
 [package]
-name = "convertisseur"
+name = "bascule"
 version = "0.1.0"
 edition = "2021"
-description = "Convertisseur de fichiers pour Windows : tray + menu contextuel (POC HEIC -> PNG/JPG)"
+description = "Bascule, convertisseur de fichiers pour Windows : tray + menu contextuel (POC HEIC -> PNG/JPG)"
 
 [workspace]
 members = ["shell"]

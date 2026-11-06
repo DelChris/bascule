@@ -7,7 +7,7 @@ const SIZES: [u32; 7] = [16, 20, 24, 32, 48, 64, 256];
 /// Écrit l'icône dans le dossier d'installation (référencée par le menu contextuel).
 pub fn ensure_file() -> PathBuf {
     let dir = crate::util::install_dir();
-    let path = dir.join("convertisseur.ico");
+    let path = dir.join("bascule.ico");
     let _ = std::fs::create_dir_all(&dir);
     let _ = std::fs::write(&path, ico_file());
     path

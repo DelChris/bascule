@@ -29,7 +29,7 @@ use windows::Win32::UI::Shell::*;
 use formats::{Format, SOURCES};
 
 /// Doit correspondre à packaging/AppxManifest.xml.
-pub const CLSID_CONVERT: GUID = GUID::from_u128(0x4F7392F1_0176_4931_A170_5365C686A79B);
+pub const CLSID_CONVERT: GUID = GUID::from_u128(0x7DB95F0E_6E72_44FB_8DAD_A425EB2D3CA0);
 
 static MODULE: AtomicIsize = AtomicIsize::new(0);
 /// Objets COM vivants + envois en cours : la DLL ne doit pas être déchargée avant 0.
@@ -126,7 +126,7 @@ impl IExplorerCommand_Impl for RootCommand_Impl {
         dup("Convertir...")
     }
     fn GetIcon(&self, _: Option<&IShellItemArray>) -> Result<PWSTR> {
-        dup(&module_dir().join("convertisseur.ico").display().to_string())
+        dup(&module_dir().join("bascule.ico").display().to_string())
     }
     fn GetToolTip(&self, _: Option<&IShellItemArray>) -> Result<PWSTR> {
         Err(E_NOTIMPL.into())
@@ -184,7 +184,7 @@ impl IExplorerCommand_Impl for SubCommand_Impl {
             return Ok(());
         }
         let msg = format!("convert {}\n{}", self.fmt.ext(), paths.join("\n"));
-        let exe = module_dir().join("convertisseur.exe");
+        let exe = module_dir().join("bascule.exe");
         // Ne pas bloquer l'Explorateur : l'envoi (et l'éventuel démarrage du tray) se fait à part.
         let live = Live::new();
         std::thread::spawn(move || {

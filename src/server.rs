@@ -16,7 +16,7 @@ use crate::convert::Converter;
 use crate::formats::Format;
 use crate::{ipc, registry, tray};
 
-const MUTEX_NAME: windows::core::PCWSTR = w!("Local\\Convertisseur-tray");
+const MUTEX_NAME: windows::core::PCWSTR = w!("Local\\Bascule-tray");
 
 pub struct Job {
     pub src: PathBuf,
@@ -107,7 +107,7 @@ pub fn is_running() -> bool {
 }
 
 pub fn worker_count() -> usize {
-    if let Some(n) = std::env::var("CONVERTISSEUR_THREADS").ok().and_then(|v| v.parse().ok()) {
+    if let Some(n) = std::env::var("BASCULE_THREADS").ok().and_then(|v| v.parse().ok()) {
         return n;
     }
     // Le décodeur HEVC de Windows est déjà multithreadé : au-delà de 4 on ne gagne

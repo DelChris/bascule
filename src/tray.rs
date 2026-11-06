@@ -44,7 +44,7 @@ static APP: OnceLock<App> = OnceLock::new();
 pub fn run(shared: Arc<Shared>) {
     unsafe {
         let hinst = GetModuleHandleW(None).unwrap_or_default();
-        let class = w!("ConvertisseurTray");
+        let class = w!("BasculeTray");
         let wc = WNDCLASSW {
             lpfnWndProc: Some(wndproc),
             hInstance: hinst.into(),
@@ -55,7 +55,7 @@ pub fn run(shared: Arc<Shared>) {
         let Ok(hwnd) = CreateWindowExW(
             WINDOW_EX_STYLE(0),
             class,
-            w!("Convertisseur"),
+            w!("Bascule"),
             WS_OVERLAPPED,
             0,
             0,
@@ -117,7 +117,7 @@ unsafe fn add_icon(hwnd: HWND) {
 }
 
 fn idle_tip() -> &'static str {
-    "Convertisseur — HEIC → PNG / JPG"
+    "Bascule — HEIC → PNG / JPG"
 }
 
 unsafe fn set_tip(hwnd: HWND, tip: &str) {
@@ -186,7 +186,7 @@ unsafe fn show_menu(hwnd: HWND, app: &App) {
     let autostart = registry::autostart_enabled();
     let quality = app.shared.jpeg_quality.load(Ordering::Relaxed);
 
-    let _ = AppendMenuW(menu, MF_STRING | MF_GRAYED, 0, w!("Convertisseur · HEIC → PNG / JPG"));
+    let _ = AppendMenuW(menu, MF_STRING | MF_GRAYED, 0, w!("Bascule · HEIC → PNG / JPG"));
     let _ = AppendMenuW(menu, MF_SEPARATOR, 0, PCWSTR::null());
     if registry::shell_package_installed() {
         // Géré par le package Windows 11 : se désinstalle avec --uninstall.

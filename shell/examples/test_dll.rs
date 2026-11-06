@@ -1,6 +1,6 @@
 //! Teste la DLL d'extension sans l'enregistrer : charge ses exports COM comme le
 //! ferait l'Explorateur, affiche le menu obtenu et invoque un sous-menu.
-//!   cargo run --release -p convertisseur_shell --example test_dll -- <png|jpg|-> <fichiers...>
+//!   cargo run --release -p bascule_shell --example test_dll -- <png|jpg|-> <fichiers...>
 
 use std::ffi::c_void;
 
@@ -10,7 +10,7 @@ use windows::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryW};
 use windows::Win32::UI::Shell::Common::ITEMIDLIST;
 use windows::Win32::UI::Shell::*;
 
-const CLSID: GUID = GUID::from_u128(0x4F7392F1_0176_4931_A170_5365C686A79B);
+const CLSID: GUID = GUID::from_u128(0x7DB95F0E_6E72_44FB_8DAD_A425EB2D3CA0);
 type GetClassObject = unsafe extern "system" fn(*const GUID, *const GUID, *mut *mut c_void) -> HRESULT;
 
 fn take(p: windows::core::PWSTR) -> String {
@@ -24,7 +24,7 @@ fn main() -> windows::core::Result<()> {
     let fmt = args[0].clone();
     unsafe {
         CoInitializeEx(None, COINIT_APARTMENTTHREADED).ok()?;
-        let dll = LoadLibraryW(&HSTRING::from("target/release/convertisseur_shell.dll"))?;
+        let dll = LoadLibraryW(&HSTRING::from("target/release/bascule_shell.dll"))?;
         let get: GetClassObject = std::mem::transmute(GetProcAddress(dll, s!("DllGetClassObject")).unwrap());
         let mut p = std::ptr::null_mut();
         get(&CLSID, &IClassFactory::IID, &mut p).ok()?;

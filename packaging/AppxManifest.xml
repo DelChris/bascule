@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Package MSIX « sparse » : il ne contient que ce manifeste et les logos. Il donne une
-  identité à l'appli installée dans %LOCALAPPDATA%\Programs\Convertisseur (ExternalLocation),
-  ce qui permet à Windows 11 de charger convertisseur_shell.dll dans son menu contextuel principal.
+  identité à l'appli installée dans %LOCALAPPDATA%\Programs\Bascule (ExternalLocation),
+  ce qui permet à Windows 11 de charger bascule_shell.dll dans son menu contextuel principal.
   Le CLSID doit correspondre à CLSID_CONVERT dans shell/src/lib.rs.
 -->
 <Package
@@ -15,11 +15,11 @@
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   IgnorableNamespaces="uap uap10 desktop4 desktop5 com rescap">
 
-  <Identity Name="Convertisseur" Publisher="CN=Convertisseur" Version="0.1.0.0" ProcessorArchitecture="x64" />
+  <Identity Name="Bascule" Publisher="CN=Bascule" Version="0.1.0.0" ProcessorArchitecture="x64" />
 
   <Properties>
-    <DisplayName>Convertisseur</DisplayName>
-    <PublisherDisplayName>Convertisseur</PublisherDisplayName>
+    <DisplayName>Bascule</DisplayName>
+    <PublisherDisplayName>Bascule</PublisherDisplayName>
     <Logo>Assets\logo50.png</Logo>
     <uap10:AllowExternalContent>true</uap10:AllowExternalContent>
   </Properties>
@@ -38,9 +38,9 @@
   </Capabilities>
 
   <Applications>
-    <Application Id="Convertisseur" Executable="convertisseur.exe"
+    <Application Id="Bascule" Executable="bascule.exe"
                  uap10:TrustLevel="mediumIL" uap10:RuntimeBehavior="win32App">
-      <uap:VisualElements AppListEntry="none" DisplayName="Convertisseur"
+      <uap:VisualElements AppListEntry="none" DisplayName="Bascule"
                           Description="Conversion de fichiers depuis le menu contextuel"
                           BackgroundColor="transparent"
                           Square150x150Logo="Assets\logo150.png" Square44x44Logo="Assets\logo44.png" />
@@ -48,20 +48,20 @@
         <desktop4:Extension Category="windows.fileExplorerContextMenus">
           <desktop4:FileExplorerContextMenus>
             <desktop5:ItemType Type=".heic">
-              <desktop5:Verb Id="Convertir" Clsid="4F7392F1-0176-4931-A170-5365C686A79B" />
+              <desktop5:Verb Id="Convertir" Clsid="7DB95F0E-6E72-44FB-8DAD-A425EB2D3CA0" />
             </desktop5:ItemType>
             <desktop5:ItemType Type=".heif">
-              <desktop5:Verb Id="Convertir" Clsid="4F7392F1-0176-4931-A170-5365C686A79B" />
+              <desktop5:Verb Id="Convertir" Clsid="7DB95F0E-6E72-44FB-8DAD-A425EB2D3CA0" />
             </desktop5:ItemType>
             <desktop5:ItemType Type=".hif">
-              <desktop5:Verb Id="Convertir" Clsid="4F7392F1-0176-4931-A170-5365C686A79B" />
+              <desktop5:Verb Id="Convertir" Clsid="7DB95F0E-6E72-44FB-8DAD-A425EB2D3CA0" />
             </desktop5:ItemType>
           </desktop4:FileExplorerContextMenus>
         </desktop4:Extension>
         <com:Extension Category="windows.comServer">
           <com:ComServer>
-            <com:SurrogateServer DisplayName="Convertisseur - menu contextuel">
-              <com:Class Id="4F7392F1-0176-4931-A170-5365C686A79B" Path="convertisseur_shell.dll" ThreadingModel="STA" />
+            <com:SurrogateServer DisplayName="Bascule - menu contextuel">
+              <com:Class Id="7DB95F0E-6E72-44FB-8DAD-A425EB2D3CA0" Path="bascule_shell.dll" ThreadingModel="STA" />
             </com:SurrogateServer>
           </com:ComServer>
         </com:Extension>

@@ -1,5 +1,5 @@
 # Enregistre / retire le package sparse (menu contextuel Windows 11).
-# Appelé par `convertisseur.exe --install / --uninstall` (embarqué dans l'exe).
+# Appelé par `bascule.exe --install / --uninstall` (embarqué dans l'exe).
 param(
     [Parameter(Mandatory)][ValidateSet('install', 'uninstall')] [string]$Action,
     [Parameter(Mandatory)] [string]$Dir
@@ -8,11 +8,11 @@ $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 trap { [Console]::Error.WriteLine($_.Exception.Message); exit 1 }
 
-Get-AppxPackage -Name 'Convertisseur' | Remove-AppxPackage
+Get-AppxPackage -Name 'Bascule' | Remove-AppxPackage
 if ($Action -eq 'uninstall') { exit 0 }
 
-$cer = Join-Path $Dir 'convertisseur.cer'
-$msix = Join-Path $Dir 'Convertisseur.msix'
+$cer = Join-Path $Dir 'bascule.cer'
+$msix = Join-Path $Dir 'Bascule.msix'
 $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2 $cer
 
 # Windows n'installe un package que si sa signature est approuvée : le certificat

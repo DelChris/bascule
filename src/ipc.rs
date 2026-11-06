@@ -17,7 +17,7 @@ const ERROR_PIPE_BUSY: i32 = 231;
 pub fn pipe_name() -> String {
     let user = std::env::var("USERNAME").unwrap_or_default();
     let user: String = user.chars().filter(|c| c.is_ascii_alphanumeric()).collect();
-    format!(r"\\.\pipe\convertisseur-v1-{user}")
+    format!(r"\\.\pipe\bascule-v1-{user}")
 }
 
 fn create_instance(name: &HSTRING, first: bool) -> windows::core::Result<HANDLE> {

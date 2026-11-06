@@ -38,7 +38,7 @@ impl From<io::Error> for Error {
 }
 
 fn trace(what: &str, t: Instant) {
-    if std::env::var_os("CONVERTISSEUR_TRACE").is_some() {
+    if std::env::var_os("BASCULE_TRACE").is_some() {
         eprintln!("{what} {:?}", t.elapsed());
     }
 }

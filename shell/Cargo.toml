@@ -1,8 +1,8 @@
 [package]
-name = "convertisseur_shell"
+name = "bascule_shell"
 version = "0.1.0"
 edition = "2021"
-description = "Extension du menu contextuel Windows 11 (IExplorerCommand) pour Convertisseur"
+description = "Extension du menu contextuel Windows 11 (IExplorerCommand) pour Bascule"
 
 [lib]
 crate-type = ["cdylib"]

@@ -20,10 +20,10 @@ pub fn fill_wide<const N: usize>(dst: &mut [u16; N], s: &str) {
     dst[i] = 0;
 }
 
-/// Dossier d'installation : %LOCALAPPDATA%\Programs\Convertisseur
+/// Dossier d'installation : %LOCALAPPDATA%\Programs\Bascule
 pub fn install_dir() -> PathBuf {
     let base = std::env::var_os("LOCALAPPDATA").map(PathBuf::from).unwrap_or_else(std::env::temp_dir);
-    base.join("Programs").join("Convertisseur")
+    base.join("Programs").join("Bascule")
 }
 
 /// "1,84 s" / "320 ms"

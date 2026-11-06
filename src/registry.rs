@@ -11,11 +11,11 @@ use crate::formats::SOURCES;
 use crate::util::wide;
 
 const RUN_KEY: &str = r"Software\Microsoft\Windows\CurrentVersion\Run";
-const APP_KEY: &str = r"Software\Convertisseur";
-const VALUE_NAME: &str = "Convertisseur";
+const APP_KEY: &str = r"Software\Bascule";
+const VALUE_NAME: &str = "Bascule";
 
 fn menu_key(ext: &str) -> String {
-    format!(r"Software\Classes\SystemFileAssociations\{ext}\shell\Convertisseur")
+    format!(r"Software\Classes\SystemFileAssociations\{ext}\shell\Bascule")
 }
 
 fn check(e: WIN32_ERROR) -> windows::core::Result<()> {
