@@ -1,6 +1,6 @@
 [package]
 name = "bascule"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "Bascule, convertisseur de fichiers pour Windows : tray + menu contextuel (POC HEIC -> PNG/JPG)"
 
@@ -8,6 +8,7 @@ description = "Bascule, convertisseur de fichiers pour Windows : tray + menu con
 members = ["shell"]
 
 [dependencies]
+lopdf = { version = "0.47.0", default-features = false }
 png = "0.17"
 windows = { version = "0.58", features = [
     "Win32_Foundation",

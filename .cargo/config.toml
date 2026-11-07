@@ -1,0 +1,5 @@
+# getrandom (via lopdf) lie bcryptprimitives.dll en « raw-dylib », ce qui demande
+# dlltool + un assembleur avec la toolchain GNU. Le backend RtlGenRandom (advapi32)
+# a une bibliothèque d'import classique et reste sûr sous Windows 10/11.
+[target.x86_64-pc-windows-gnu]
+rustflags = ["--cfg", 'getrandom_backend="windows_legacy"']

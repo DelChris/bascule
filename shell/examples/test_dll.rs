@@ -57,8 +57,9 @@ fn main() -> windows::core::Result<()> {
             }
             let sub = one[0].take().unwrap();
             let title = take(sub.GetTitle(&items)?);
-            println!("  sous-menu : {title}");
-            if title.eq_ignore_ascii_case(&fmt) {
+            let hidden = sub.GetState(&items, false)? == ECS_HIDDEN.0 as u32;
+            println!("  sous-menu : {title}{}", if hidden { "  (masqué)" } else { "" });
+            if !hidden && title.eq_ignore_ascii_case(&fmt) {
                 sub.Invoke(&items, None)?;
                 println!("  -> invoqué");
             }

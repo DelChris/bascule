@@ -177,7 +177,14 @@ fn handle(msg: &str, tx: &mpsc::Sender<Job>, shared: &Shared) {
     if cmd == "quit" {
         shared.post(WM_CLOSE);
     } else if let Some(fmt) = cmd.strip_prefix("convert ").and_then(Format::parse) {
-        let paths: Vec<PathBuf> = lines.filter(|l| !l.trim().is_empty()).map(PathBuf::from).collect();
+        let paths: Vec<PathBuf> = lines
+            .filter(|l| !l.trim().is_empty())
+            .map(PathBuf::from)
+            .filter(|p| crate::formats::accepts(p, fmt))
+            .collect();
+        if paths.is_empty() {
+            return;
+        }
         shared.enqueue(paths.len());
         for src in paths {
             let _ = tx.send(Job { src, fmt });

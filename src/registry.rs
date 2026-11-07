@@ -86,10 +86,10 @@ pub fn install_context_menu(exe: &Path, icon: &Path) -> windows::core::Result<()
         // "Player" : le menu reste visible même au-delà de 15 fichiers sélectionnés.
         set_str(&base, Some("MultiSelectModel"), "Player")?;
         for (i, f) in targets.iter().enumerate() {
-            let sub = format!(r"{base}\shell\{:02}{}", i + 1, f.ext());
+            let sub = format!(r"{base}\shell\{:02}{}", i + 1, f.id());
             set_str(&sub, Some("MUIVerb"), f.label())?;
             set_str(&sub, Some("MultiSelectModel"), "Player")?;
-            set_str(&format!(r"{sub}\command"), None, &format!("\"{exe}\" --to {} \"%1\"", f.ext()))?;
+            set_str(&format!(r"{sub}\command"), None, &format!("\"{exe}\" --to {} \"%1\"", f.id()))?;
         }
     }
     notify_shell();

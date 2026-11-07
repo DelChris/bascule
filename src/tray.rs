@@ -117,7 +117,7 @@ unsafe fn add_icon(hwnd: HWND) {
 }
 
 fn idle_tip() -> &'static str {
-    "Bascule — HEIC → PNG / JPG"
+    "Bascule — conversion d'images et de PDF"
 }
 
 unsafe fn set_tip(hwnd: HWND, tip: &str) {
@@ -186,7 +186,7 @@ unsafe fn show_menu(hwnd: HWND, app: &App) {
     let autostart = registry::autostart_enabled();
     let quality = app.shared.jpeg_quality.load(Ordering::Relaxed);
 
-    let _ = AppendMenuW(menu, MF_STRING | MF_GRAYED, 0, w!("Bascule · HEIC → PNG / JPG"));
+    let _ = AppendMenuW(menu, MF_STRING | MF_GRAYED, 0, w!("Bascule · images et PDF"));
     let _ = AppendMenuW(menu, MF_SEPARATOR, 0, PCWSTR::null());
     if registry::shell_package_installed() {
         // Géré par le package Windows 11 : se désinstalle avec --uninstall.

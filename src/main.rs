@@ -9,6 +9,7 @@
 mod convert;
 mod formats;
 mod icon;
+mod pdf;
 mod ipc;
 mod registry;
 mod server;
@@ -32,7 +33,7 @@ use windows::Win32::UI::HiDpi::{SetProcessDpiAwarenessContext, DPI_AWARENESS_CON
 use windows::Win32::UI::WindowsAndMessaging::{MessageBoxW, MB_ICONINFORMATION, MB_ICONWARNING, MB_OK};
 
 use convert::Converter;
-use formats::{Format, SOURCES};
+use formats::Format;
 
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -63,16 +64,15 @@ fn main() {
         }
         _ => message_box(
             "Usage :\n  bascule.exe --install\n  bascule.exe --uninstall\n  \
-             bascule.exe --cli png|jpg <fichiers ou dossiers>",
+             bascule.exe --cli png|jpg|reduce|compress <fichiers ou dossiers>",
             false,
         ),
     }
 }
 
 fn running_from_install_dir() -> bool {
-    let norm = |p: PathBuf| p.canonicalize().unwrap_or(p);
     let exe_dir = std::env::current_exe().ok().and_then(|p| p.parent().map(Path::to_path_buf));
-    exe_dir.is_some_and(|d| norm(d) == norm(util::install_dir()))
+    exe_dir.is_some_and(|d| same_path(&d, &util::install_dir()))
 }
 
 fn message_box(text: &str, warn: bool) {
@@ -95,7 +95,7 @@ fn client(args: &[String]) {
         return;
     }
     let list: Vec<String> = paths.iter().map(|p| p.display().to_string()).collect();
-    let msg = format!("convert {}\n{}", fmt.ext(), list.join("\n"));
+    let msg = format!("convert {}\n{}", fmt.id(), list.join("\n"));
     if send_or_start(&msg) {
         return;
     }
@@ -157,7 +157,7 @@ fn cli(args: &[String]) {
     }
     let mut out = std::io::stdout();
     let Some(fmt) = args.first().and_then(|s| Format::parse(s)) else {
-        let _ = writeln!(out, "usage : bascule --cli png|jpg <fichiers ou dossiers>");
+        let _ = writeln!(out, "usage : bascule --cli png|jpg|reduce|compress <fichiers ou dossiers>");
         return;
     };
     let mut files = Vec::new();
@@ -166,8 +166,7 @@ fn cli(args: &[String]) {
         if p.is_dir() {
             for e in std::fs::read_dir(&p).into_iter().flatten().flatten() {
                 let path = e.path();
-                let ext = path.extension().map(|x| format!(".{}", x.to_string_lossy().to_lowercase()));
-                if ext.is_some_and(|x| SOURCES.iter().any(|(s, _)| *s == x)) {
+                if formats::accepts(&path, fmt) {
                     files.push(path);
                 }
             }

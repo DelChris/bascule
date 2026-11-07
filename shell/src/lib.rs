@@ -26,7 +26,7 @@ use windows::Win32::System::LibraryLoader::GetModuleFileNameW;
 use windows::Win32::System::SystemServices::DLL_PROCESS_ATTACH;
 use windows::Win32::UI::Shell::*;
 
-use formats::{Format, SOURCES};
+use formats::Format;
 
 /// Doit correspondre à packaging/AppxManifest.xml.
 pub const CLSID_CONVERT: GUID = GUID::from_u128(0x7DB95F0E_6E72_44FB_8DAD_A425EB2D3CA0);
@@ -68,10 +68,6 @@ fn dup(s: &str) -> Result<PWSTR> {
     unsafe { SHStrDupW(&HSTRING::from(s)) }
 }
 
-fn supported(p: &Path) -> bool {
-    let ext = p.extension().map(|e| format!(".{}", e.to_string_lossy().to_lowercase()));
-    ext.is_some_and(|e| SOURCES.iter().any(|(s, _)| *s == e))
-}
 
 fn item_paths(items: Option<&IShellItemArray>) -> Vec<PathBuf> {
     let Some(items) = items else { return Vec::new() };
@@ -89,18 +85,6 @@ fn item_paths(items: Option<&IShellItemArray>) -> Vec<PathBuf> {
     }
 }
 
-/// Formats proposés : union des cibles de toutes les extensions sources.
-fn all_targets() -> Vec<Format> {
-    let mut v: Vec<Format> = Vec::new();
-    for (_, targets) in SOURCES {
-        for t in *targets {
-            if !v.contains(t) {
-                v.push(*t);
-            }
-        }
-    }
-    v
-}
 
 fn send_or_start(msg: &str, exe: &Path) {
     let deadline = Instant::now() + Duration::from_secs(8);
@@ -135,7 +119,7 @@ impl IExplorerCommand_Impl for RootCommand_Impl {
         Ok(CLSID_CONVERT)
     }
     fn GetState(&self, items: Option<&IShellItemArray>, _slow: BOOL) -> Result<u32> {
-        let any = item_paths(items).iter().any(|p| supported(p));
+        let any = item_paths(items).iter().any(|p| !formats::targets(p).is_empty());
         Ok(if any { ECS_ENABLED.0 } else { ECS_HIDDEN.0 } as u32)
     }
     fn Invoke(&self, _: Option<&IShellItemArray>, _: Option<&IBindCtx>) -> Result<()> {
@@ -145,7 +129,9 @@ impl IExplorerCommand_Impl for RootCommand_Impl {
         Ok(ECF_HASSUBCOMMANDS.0 as u32)
     }
     fn EnumSubCommands(&self) -> Result<IEnumExplorerCommand> {
-        let cmds = all_targets()
+        // Toutes les actions ; chacune se masque si aucun fichier sélectionné ne l'accepte
+        // (EnumSubCommands ne reçoit pas la sélection).
+        let cmds = Format::ALL
             .into_iter()
             .map(|fmt| SubCommand { fmt, _live: Live::new() }.into())
             .collect();
@@ -174,16 +160,20 @@ impl IExplorerCommand_Impl for SubCommand_Impl {
     fn GetCanonicalName(&self) -> Result<GUID> {
         Err(E_NOTIMPL.into())
     }
-    fn GetState(&self, _: Option<&IShellItemArray>, _slow: BOOL) -> Result<u32> {
-        Ok(ECS_ENABLED.0 as u32)
+    fn GetState(&self, items: Option<&IShellItemArray>, _slow: BOOL) -> Result<u32> {
+        let any = item_paths(items).iter().any(|p| formats::accepts(p, self.fmt));
+        Ok(if any { ECS_ENABLED.0 } else { ECS_HIDDEN.0 } as u32)
     }
     fn Invoke(&self, items: Option<&IShellItemArray>, _: Option<&IBindCtx>) -> Result<()> {
-        let paths: Vec<String> =
-            item_paths(items).into_iter().filter(|p| supported(p)).map(|p| p.display().to_string()).collect();
+        let paths: Vec<String> = item_paths(items)
+            .into_iter()
+            .filter(|p| formats::accepts(p, self.fmt))
+            .map(|p| p.display().to_string())
+            .collect();
         if paths.is_empty() {
             return Ok(());
         }
-        let msg = format!("convert {}\n{}", self.fmt.ext(), paths.join("\n"));
+        let msg = format!("convert {}\n{}", self.fmt.id(), paths.join("\n"));
         let exe = module_dir().join("bascule.exe");
         // Ne pas bloquer l'Explorateur : l'envoi (et l'éventuel démarrage du tray) se fait à part.
         let live = Live::new();

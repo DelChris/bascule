@@ -1,6 +1,6 @@
 [package]
 name = "bascule_shell"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "Extension du menu contextuel Windows 11 (IExplorerCommand) pour Bascule"
 
