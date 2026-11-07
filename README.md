@@ -102,6 +102,8 @@ Menu classique : Explorateur ──(1 process par fichier)── bascule.exe --t
   décodeur de Windows pour le HEIC, d'après le tag EXIF pour le JPEG et le TIFF. Les
   métadonnées EXIF (date, GPS…) ne sont **pas** recopiées.
 - Vers JPG, une image transparente (PNG, WebP…) est posée sur fond blanc.
+- Limite de Windows : le décodeur AVIF (extension HEIF) ignore la couche alpha. Un AVIF
+  transparent ressort opaque, avec la couleur stockée sous les zones transparentes (souvent noir).
 - PDF : les masques de transparence, les images 1 bit, indexées, CMJN, JPEG 2000, CCITT et
   JBIG2 ne sont pas retouchés ; les PDF protégés sont refusés.
 - Fichiers de test (PNG transparent, JPEG pivoté, BMP / TIFF, PDF lourd) :
